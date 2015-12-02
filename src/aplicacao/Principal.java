@@ -117,5 +117,28 @@ public class Principal {
 		System.out.println("Pronto!");
 		em.close();
 		emf.close();
+		
+		
+		// TESTE 1: VALOR TOTAL DE UM PEDIDO	
+		System.out.println("Valor Total do pedido: " +p1+":");
+		
+		
+		System.out.println(p1.valorTotal());
+		
+		Date dataInicial = sdf.parse("01/09/2015");
+		Date dataFinal = sdf.parse("05/09/2015");
+		
+		// TESTE 2: LISTA DE PEDIDOS REALIZADOS EM UM DADO INTERVALO DE DATAS
+		System.out.println("Pedidos realizados na" +r1+ "entre: "+sdf.format(dataInicial)+" e "+sdf.format(dataFinal)+": ");
+		System.out.println(r1.pedidosPorPeriodo(dataInicial, dataFinal));
+				
+		// TESTE 3: TOTAL DE DESCONTO CONCEDIDO EM UM DADO INTERVALO DE DATAS
+		System.out.println("Desconto concedido entre: "+sdf.format(dataInicial)+" e "+sdf.format(dataFinal)+": ");
+		//System.out.println(prom2.descontoPorPeriodo(dataInicial, dataFinal));
+		
+		// TESTE 4: TOTAL DE VENDAS DE UM ATENDENTE EM UM DADO INTERVALO DE DATAS
+		System.out.println("O valor total de vendas do "+a1+" no período de "+sdf.format(dataInicial)+" a "+sdf.format(dataFinal)+" é: ");
+		System.out.println(a1.vendasPorPeriodo(sdf.parse("01/09/2015"), sdf.parse("07/09/2015")));
 	}
+
 }

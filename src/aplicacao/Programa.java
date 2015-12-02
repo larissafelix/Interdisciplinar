@@ -11,6 +11,8 @@ import java.util.Scanner;
 
 import org.hibernate.engine.jdbc.ClobImplementer;
 
+import com.sun.xml.internal.bind.v2.runtime.unmarshaller.InterningXmlVisitor;
+
 import dominio.Atendente;
 import dominio.Cliente;
 import dominio.Endereco;
@@ -188,10 +190,10 @@ public class Programa {
 					
 					//cadastrar atendente					
 					List<Atendente> listAtendente = atendenteServico.buscarTodos();
-					System.out.println("Atendentes cadastrados");
+					System.out.println("\nAtendentes cadastrados");
 					
 					for(Atendente x: listAtendente){
-						System.out.println(x);
+						System.out.println(x.getNome());
 					}
 					System.out.println("\nDigite o nome do novo Atendente");
 					String nomea = sc.nextLine();
@@ -216,14 +218,23 @@ public class Programa {
 					break;
 				
 				case 6:
+					//fazer pedido
+					List<Atendente> listAtendPedido = atendenteServico.buscarTodos();
+					System.out.println("\nAtendentes cadastrados");
 					
-					//Fazer pedido
-					
+					for(Atendente x: listAtendPedido){
+						System.out.println("Codigo: " + x.getCodAtendente()+ ", Nome: "+ x.getNome());
+					}
+
+					System.out.println("\nDigite o codigo do atendente que irá fazer o pedido");
+					int coda = Integer.parseInt(sc.nextLine());
+										
 					Date dataAtual = new Date(System.currentTimeMillis());
 					int codCli = 0;
 					//Digita atendente
-					System.out.println("\nDigite o codigo do atendente que irá fazer o pedido");
-					int coda = Integer.parseInt(sc.nextLine());
+					
+					
+					
 					
 					// Validar aqui buscar atendente
 				try {
@@ -234,17 +245,10 @@ public class Programa {
 					
 					//Buscar o cliente por telefone
 					cliente = clienteServico.buscarCliTelefone(fonecli);
-					
-					//Se o telefone não foi encontrado.
-										
-					if (cliente == null){
-						System.out.println("Cliente não encontrado, realize o cadastro do cliente para prosseguir");	
-						break;
-					}
+					System.out.println("Cliente "+cliente.getNome()+" encontrado!!!");
 					
 					//verificar se existe pedido para este cliente
 //					pedidoServico.buscarPedido(cliente.getCodCliente());
-
 					
 					//Mostrar regiões para escolha
 					System.out.println("\nEscolha a região abaixo pelo código");
@@ -255,7 +259,6 @@ public class Programa {
 					}
 					int codreg = Integer.parseInt(sc.nextLine());	
 					
-					System.out.println(tamReg);
 					while(codreg != 1 && codreg != tamReg){
 						
 						System.out.println("Opção inválida, escolha a opção pelo código de 1 a " + reg.size());
@@ -287,7 +290,7 @@ public class Programa {
 						int opPro = Integer.parseInt(sc.nextLine());
 						int qtdPro = 0;
 						BigDecimal precoItem = new BigDecimal("0.00");
-									
+						BigDecimal totalPedido = new BigDecimal("0.00");	
 						while(opPro != tamPro + 1){
 							if(opPro >= 1 && opPro <= tamPro){
 								
@@ -297,12 +300,13 @@ public class Programa {
 								qtdPro = Integer.parseInt(sc.nextLine());
 								
 								auxItem.add(new Item(null, qtdPro, precoItem, pedido, prodItem));
+								totalPedido = totalPedido.add(precoItem.multiply(new BigDecimal(qtdPro)));
 								
 								System.out.println("-----------------------------------------------------------");
 								for(int i = 0; i < auxItem.size();i++){
 									System.out.println("Item " + (i + 1) + " - " + auxItem.get(i).getProduto().getNomeProduto() + ", Qtd " 
 								    + auxItem.get(i).getQtd()+ ", R$ " + auxItem.get(i).getPreco() + ", Total = " 
-									+ auxItem.get(i).getPreco().multiply(BigDecimal.valueOf(auxItem.get(i).getQtd())));
+									+ auxItem.get(i).getPreco().multiply(new BigDecimal(auxItem.get(i).getQtd())));
 								}
 								
 								System.out.println("-----------------------------------------------------------");
@@ -317,12 +321,21 @@ public class Programa {
 						}
 						//gravar pedido e itens no banco
 						if( auxItem.size()>0){
-							pedidoServico.inserirAtualizar(pedido);
+							System.out.println("\nDeseja confirmar o pedido realizado no valor total de R$ " + totalPedido + "?");
+							System.out.println("Digite 1 para confirmar e qualquer outra tecla para rejeitar");
+							Integer oped = Integer.parseInt(sc.nextLine());
 							
-							for(Item x: auxItem){
-								itemServico.inserirAtualizar(x);
+							if(oped == 1){
+								pedidoServico.inserirAtualizar(pedido);
+								
+								for(Item x: auxItem){
+									itemServico.inserirAtualizar(x);
+								}
+								System.out.println("\nPedido realizado com sucesso! Código: " + pedido.getCodPedido());
+							}else{
+								System.out.println("\nO pedido não foi confirmado");
 							}
-							System.out.println("\nPedido realizado com sucesso! Código: " + pedido.getCodPedido());
+							
 							
 						}else{
 							System.out.println("\nO pedido não foi realizado porque nenhum produto foi escolhido.");
@@ -379,22 +392,36 @@ public class Programa {
 					pedidoServico.pizzaMaisVendida(sdf.parse(pInicioPizza), sdf.parse(pFimPizza));
 					
 				case 10:
-					//Relatório de pedidos por Região.
+					List<Regiao> listReg = regiaoServico.buscarTodos();
+					
+					System.out.println("\nEscolha pelo codigo a região abaixo");
+					for(Regiao x: listReg){
+						System.out.println("Codigo " + x.getCodRegiao() + ", Região: " + x.getNomeRegiao());
+					}
+					Integer opt = Integer.parseInt(sc.nextLine());
+					regiao = regiaoServico.buscar(opt);
+					
 					System.out.println("Digite o período inicial");
 					String pInicioReg = sc.nextLine();
 					System.out.println("Digite o período final");
 					String pFimReg = sc.nextLine();
 					
-					List<Pedido> listPedReg = pedidoServico.buscarPedidoPeriodo(sdf.parse(pInicioReg), sdf.parse(pFimReg));
+					
 					//imprime pedido
+					List<Pedido> listPedReg = pedidoServico.buscarPedidoCodPeriodo(regiao.getCodRegiao(),
+							sdf.parse(pInicioReg), sdf.parse(pFimReg));
+					//Relatório de pedidos por Região.
+					System.out.println("\nPedidos encontrados na região: " + regiao.getNomeRegiao());
+					
 					for(Pedido x: listPedReg){
-						System.out.println(x.getRegiao());
+						
 						//imprime Item
 						List<Item> listItem = x.getItens();
 						for(Item z: listItem){
-							System.out.println(z + ", " + z.getProduto().getNomeProduto());
+							System.out.println(z.getProduto().getNomeProduto()+", Quantidade: "+z.getQtd()+" , Preço R$ "+ z.getPreco());
 							//Imprime produto
 						}
+						System.out.println("Valor total do pedido R$ " + x.valorTotal());
 						System.out.println("---------------------------------------------------------");
 					}
 					break;

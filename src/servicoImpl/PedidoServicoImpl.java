@@ -108,11 +108,30 @@ public class PedidoServicoImpl implements PedidoServico {
 		}
 		//ordena e inverte
 		Collections.sort(pizzasM);
-		//Collections.reverse(pizzasM);
 		
 		for(int i=0; i<pizzasM.size();i++){
 			System.out.println(pizzasM.get(i).getProduto().getNomeProduto()
 				+", Quantidade: " + pizzasM.get(i).getQtd());
 		}
+	}
+	
+	public List<Pedido> buscarPedidoCodPeriodo(Integer cod, Date inicio, Date fim){
+		
+		
+		List<Pedido> listPed = dao.buscarTodos();
+		List<Pedido> aux = new ArrayList<>();
+		Pedido pedido = null;
+		
+		for(Pedido x: listPed){
+			
+			if(x.getData().getTime()>=inicio.getTime() && x.getData().getTime()<=fim.getTime()&& 
+					x.getRegiao().getCodRegiao().equals(cod)){
+				aux.add(x);
+				
+			}
+		}
+		
+		return aux;
+		
 	}
 }

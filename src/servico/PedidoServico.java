@@ -15,5 +15,6 @@ public interface PedidoServico {
 	public List<Pedido> buscarPedidoPeriodo(java.util.Date pInicio, java.util.Date pFim);
 	public BigDecimal TotalVendasPeriodo(java.util.Date pInicioTot, java.util.Date pFimTot );
 	public void pizzaMaisVendida (Date pInicioPizza, Date pFimPizza);
+	public List<Pedido> buscarPedidoCodPeriodo(Integer cod, java.util.Date inicio, java.util.Date fim);
 	
 }
